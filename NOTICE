@@ -1,0 +1,7 @@
+Knee MRI findings from 58 expert labels: report labels and iterative out-of-fold pseudo-labelling
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The 2.5D reader model (notebooks/04e_train_reader.py, knee_reader.py written by it) follows the architecture of the
+public "2.5D ConvNeXt MIL reader" notebook by goodpjw2008 on Kaggle
+(https://www.kaggle.com/code/goodpjw2008/rsna-knee-coatnet-2-5d-convnext-mil-lb-0-950), released under the
+Apache License, Version 2.0.

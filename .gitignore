@@ -1,0 +1,13 @@
+# No challenge data, derived labels, model weights or outputs in this repository (challenge rules).
+*.npz
+*.npy
+*.csv
+*.pt
+*.pth
+*.dcm
+*.png
+*.jpg
+*.pdf
+*.ipynb
+__pycache__/
+.ipynb_checkpoints/
