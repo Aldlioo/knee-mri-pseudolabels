@@ -8,14 +8,15 @@ in which only 58 of 4407 training studies carry expert labels and the rest come 
 The method has three parts:
 
 1. **Report labels from open large language models**: Qwen2.5-7B-Instruct and Gemma 4 26B-A4B-it grade each of the
-   twelve findings in every report, with the organisers' annotation criteria in the prompt (macro AUC 0.898 against the
-   expert labels).
+   twelve findings in every report (Qwen with a present-or-absent prompt; Gemma with a graded prompt that contains the
+   organisers' annotation criteria); the combined labels reach a macro AUC of 0.898 against the expert labels.
 2. **A 2.5D reader**: a 2D backbone (ConvNeXt-Tiny or EfficientNetV2-S) on three-slice windows of five canonicalised
    series (left knees mirrored, 100 mm physical crop, 224 px), a transformer over all windows of a study, and one
    attention pooling per finding; five folds grouped by acquisition setting plus one full-data model per family.
 3. **Iterative out-of-fold pseudo-labelling**: the next round's target is `0.5 * report labels + 0.5 * mean out-of-fold
    probability of the previous models`. The target rose from 0.900 to 0.932, 0.937 and 0.942; the same reader went
-   from 0.907 to 0.925 out-of-fold, and the best ensemble reached 0.933 out-of-fold and 0.932 on the private leaderboard.
+   from 0.907 to 0.925 out-of-fold, and the best out-of-fold ensemble, M7 + M9 + 2 × M12, reached 0.933 out-of-fold
+   and 0.931 on the private leaderboard (M7 + 2 × M9: 0.932 and 0.932).
 
 ## Repository layout
 
@@ -27,13 +28,13 @@ stated in the header of each script). Each header lists the inputs to attach and
 |---|---|---|
 | Setup | `00_wheels.py` | Builds offline wheels for DICOM decoding (pylibjpeg, gdcm) |
 | Data | `01_eda.py` | Dataset statistics: series, planes, languages, label prevalence |
-| Report labels | `02_report_labeler.py`, `02b_labeler_gemma.py` | Qwen2.5-7B and Gemma 4 report labellers (zero-shot, graded 0/1/2, official criteria) |
+| Report labels | `02_report_labeler.py`, `02b_labeler_gemma.py` | Qwen2.5-7B and Gemma 4 report labellers (zero-shot; Qwen: present/absent on all reports, graded prompt tested on the 58 expert studies; Gemma: graded 0/1/2 with the official criteria) |
 | Preprocessing | `03_preprocess.py`, `03c_preprocess_m2.py`, `03d_preprocess_zoom.py`, `03e_preprocess_hires.py` | Series selection into 5 slots, reorientation, left-knee mirroring, physical crop, 8-bit cache |
 | Training | `04e_train_reader.py` | The 2.5D reader; `FAMILY` selects the model: `m4`-`m6` (round 1), `m7` (round 2), `m9`/`m11` (round 3), `m12` (round 4), `m8` (320 px) |
 | | `04f`-`04k` scripts | Thin wrappers that run `04e` for one family and a set of folds (two folds in parallel, one per GPU) |
 | | `04_train.py`, `04c_*`, `04d_*` | Earlier models M1 (ResNet-34), M2 (ResNet-34, 5 slots) and M3 (DINOv2 slice transformer) |
 | Pseudo-labels | `09_label_lab.py` | Scores label sources and candidate targets on the 58 expert studies; writes `targets_v2`-`v4` |
-| Inference | `05_submit.py`, `05c_submit_m2.py` | Test-time preprocessing (identical to the cache), dense windows, rank ensemble of model families |
+| Inference | `05_submit.py`, `05c_submit_m2.py` | Test-time preprocessing (identical to the cache), dense windows, rank ensemble of model families (`RUN_FAMILIES`: default `m7,m9:2` = M7 + 2 × M9; `m7,m9,m12:2` = M7 + M9 + 2 × M12, the best out-of-fold ensemble of the paper) |
 | Analysis | `10_window_check.py`, `10b_hires_read_check.py`, `14_ensemble_check.py` | Test-time window layouts, high-resolution reads, out-of-fold ensemble selection with a paired bootstrap |
 | Figures | `16_paper_mri_figure.py`, `paper_figures/` | Example-study figure (run on Kaggle) and the charts of the paper |
 

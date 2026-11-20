@@ -260,7 +260,8 @@ def find_inputs(match):
     return sorted(hits)
 
 FROM_04 = lambda p: re.search(r"04[c-z]-train", p) is not None
-RUN_FAMILIES = "m7,m9:2"     # families in this notebook's own submission.csv ("" = every family except m3); notebook 14: M7 + 2 x M9 = 0.9315 OOF on 58 gold
+RUN_FAMILIES = "m7,m9:2"     # families in this notebook's own submission.csv ("" = every family except m3); notebook 14: M7 + 2 x M9 = 0.9315 OOF on 58 gold (private 0.932)
+                             # paper's best OOF ensemble (Table 2): "m7,m9,m12:2" = M7 + M9 + 2 x M12, 0.933 OOF (private 0.931)
 RUN_WINDOWS = "dense"        # "train" or "dense" (every slice a window centre, see notebook 10)
 import importlib.util
 DATA = os.path.dirname(find_inputs(lambda p: p.endswith("/test_series.csv"))[0])
